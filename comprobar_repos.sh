@@ -115,11 +115,11 @@ install_gh() {
 
 # Main logic
 if ! check_gh_installed; then
-    if ! find_repo_on_sources_list; then
+    if ! find_repo_in_sources_list; then
         add_repository
     fi
 
-    if find_repo_on_sources_list; then
+    if find_repo_in_sources_list; then
         install_gh
     else
         echo "Error: Repository could not be added. Exiting."
