@@ -128,5 +128,3 @@ if ! check_gh_installed; then
 else
     echo "Nothing to do. The gh program is already installed."
 fi
-
-find_repo_in_sources_list
