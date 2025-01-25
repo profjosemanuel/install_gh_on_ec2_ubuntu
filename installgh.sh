@@ -1,4 +1,5 @@
 #!/bin/bash
+
 #prueba
 #prueba2
 (type -p wget >/dev/null || (sudo apt update && sudo apt-get install wget -y)) \
@@ -10,3 +11,4 @@
 
 sudo apt update
 sudo apt install gh
+
