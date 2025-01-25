@@ -14,7 +14,7 @@ SOURCE_LIST="/etc/apt/sources.list.d/github-cli.list"
 
 
 # Repositorio Docker a buscar
-docker_repo="https://download.docker.com/linux/ubuntu"
+github_repo="https://cli.github.com/packages"
 
 # Archivos sources.list a revisar
 sources_file="/etc/apt/sources.list"
@@ -22,16 +22,16 @@ sources_directories="/etc/apt/sources.list.d"
 # Función para buscar el repositorio en un archivo
 find_repo() {
     local file="$1"
-    grep -q "$docker_repo" "$file" && echo "El repositorio de Docker SI se encontró en $file" || echo "El repositorio de Docker NO se encontró en $file"
+    grep -q "$github_repo" "$file" && echo "El repositorio de Docker SI se encontró en $file" || echo "El repositorio de Docker NO se encontró en $file"
 }
 
 find_repo_2() {
     local file="$1"
-    if  grep -q "$docker_repo" "$file"; then
-        echo "El repositorio de Docker SI se encontró en $file"
+    if  grep -q "$github_repo" "$file"; then
+        echo "El repositorio de github SI se encontró en $file"
         encontrado=true;
     else
-        echo "El repositorio de Docker NO se encontró en $file"
+        echo "El repositorio de github NO se encontró en $file"
    fi
 }
 
