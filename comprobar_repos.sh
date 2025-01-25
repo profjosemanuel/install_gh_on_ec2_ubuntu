@@ -40,8 +40,7 @@ find_repo_in_sources_list() {
    encontrado=false
    find_repo_2 $sources_file
    if ! $encontrado; then
-
-       for file in "$sources_directories"/*.list; do
+       for file in "$sources_directories"/*; do
             echo "$file"
             find_repo_2 $file
        done
@@ -114,14 +113,20 @@ install_gh() {
 }
 
 # Main logic
+main() {
 if ! check_gh_installed; then
-    if ! find_repo_in_sources_list; then
-        add_repository
+    if ! check_repo_added; then
+         add_repository
+         echo "add_repository"
     fi
 
-    if find_repo_in_sources_list; then
+    if check_repo_added; then
         install_gh
+         echo "install_gh"
     fi
 else
     echo "Nothing to do. The gh program is already installed."
 fi
+}
+
+main
