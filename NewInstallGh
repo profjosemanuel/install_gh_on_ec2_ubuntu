@@ -1,0 +1,93 @@
+#!/bin/bash
+
+# Verificar si el usuario tiene permisos de root
+if [ "$(id -u)" -ne 0 ]; then
+    echo "Este script debe ejecutarse con permisos de root."
+    exit 1
+fi
+
+# Verificar si wget está instalado
+if type -p wget >/dev/null; then
+    echo "wget ya está instalado."
+else
+    echo "wget no está instalado. Instalando wget..."
+    apt update
+    apt-get install wget -y
+    if [ $? -ne 0 ]; then
+        echo "Error al instalar wget. Saliendo..."
+        exit 1
+    fi
+fi
+
+# Crear el directorio de claves si no existe
+if [ -d /etc/apt/keyrings ]; then
+    echo "El directorio /etc/apt/keyrings ya existe."
+else
+    echo "Creando el directorio /etc/apt/keyrings..."
+    mkdir -p -m 755 /etc/apt/keyrings
+    if [ $? -ne 0 ]; then
+        echo "Error al crear el directorio /etc/apt/keyrings. Saliendo..."
+        exit 1
+    fi
+fi
+
+# Verificar si el archivo de clave ya existe
+if [ -f /etc/apt/keyrings/githubcli-archive-keyring.gpg ]; then
+    echo "La clave del repositorio de GitHub CLI ya está configurada."
+else
+    # Descargar y configurar la clave de archivo
+    out=$(mktemp)
+    echo "Descargando la clave del archivo..."
+    wget -nv -O "$out" https://cli.github.com/packages/githubcli-archive-keyring.gpg
+
+    if [ $? -eq 0 ]; then
+        echo "Clave descargada correctamente. Configurando..."
+        cat "$out" > /etc/apt/keyrings/githubcli-archive-keyring.gpg
+        chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+        if [ $? -ne 0 ]; then
+            echo "Error al configurar la clave. Saliendo..."
+            exit 1
+        fi
+    else
+        echo "Error al descargar la clave. Saliendo..."
+        exit 1
+    fi
+fi
+
+# Verificar si el repositorio ya está configurado
+if grep -q "https://cli.github.com/packages" /etc/apt/sources.list.d/github-cli.list 2>/dev/null; then
+    echo "El repositorio de GitHub CLI ya está configurado."
+else
+    arch=$(dpkg --print-architecture)
+    echo "Agregando el repositorio de GitHub CLI..."
+    echo "deb [arch=$arch signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" > /etc/apt/sources.list.d/github-cli.list
+
+    if [ $? -ne 0 ]; then
+        echo "Error al agregar el repositorio. Saliendo..."
+        exit 1
+    fi
+fi
+
+# Actualizar repositorios
+echo "Actualizando los repositorios..."
+apt update
+
+if [ $? -eq 0 ]; then
+    # Verificar si gh ya está instalado
+    if type -p gh >/dev/null; then
+        echo "GitHub CLI ya está instalado."
+    else
+        echo "Instalando GitHub CLI..."
+        apt install gh -y
+        if [ $? -eq 0 ]; then
+            echo "GitHub CLI instalado correctamente."
+        else
+            echo "Error al instalar GitHub CLI. Saliendo..."
+            exit 1
+        fi
+    fi
+else
+    echo "Error al actualizar los repositorios. Saliendo..."
+    exit 1
+fi
+
